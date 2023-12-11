@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import hashlib
 
 # Project Directory
 DIR_FILE = Path(__file__).resolve()
@@ -29,7 +30,25 @@ class ReadDir:
         try:
             if self.read_dir() == 1:
                 dir_folder = Path(self.folder_search)
-                return os.listdir(dir_folder)
+
+                # Use os.walk to list all files in the directory and its subdirectories
+                all_files = [os.path.join(root, file) for root, dirs, files in os.walk(dir_folder) for file in files]
+
+                # Use a dictionary to identify duplicate files based on their content
+                file_dict = {}
+                duplicate_files = []
+
+                for file_path in all_files:
+                    with open(file_path, 'rb') as f:
+                        file_content = f.read()
+                        file_hash = hashlib.md5(file_content).hexdigest()
+
+                    if file_hash not in file_dict:
+                        file_dict[file_hash] = file_path
+                    else:
+                        duplicate_files.append((file_path, file_dict[file_hash]))
+
+                return duplicate_files
             elif self.read_dir() == 0:
                 return []
         except Exception as e:
@@ -41,7 +60,7 @@ def save_list(list_doublons):
 
     with open(file_name, 'w', encoding="UTF-8") as file:
         for item in list_doublons:
-            file.write(f"{item}\n")
+            file.write(f"Duplicate File 1: {item[0]}\nDuplicate File 2: {item[1]}\n\n")
 
 # Main menu
 if __name__ == "__main__":
