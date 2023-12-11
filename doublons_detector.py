@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import hashlib
+from tqdm import tqdm  # Import tqdm for the progress bar
 
 # Project Directory
 DIR_FILE = Path(__file__).resolve()
@@ -38,7 +39,8 @@ class ReadDir:
                 file_dict = {}
                 duplicate_files = []
 
-                for file_path in all_files:
+                # Use tqdm to display a progress bar with a green color
+                for file_path in tqdm(all_files, desc="Checking duplicates", unit="file"):
                     with open(file_path, 'rb') as f:
                         file_content = f.read()
                         file_hash = hashlib.md5(file_content).hexdigest()
